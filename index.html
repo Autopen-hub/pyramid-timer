@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>6-Step Pyramid Routine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .pyramid-glow {
+      box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+    }
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.35s ease-in-out;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+    .rest-pill-active {
+      background-color: #6366f1 !important;
+      color: #ffffff !important;
+      border-color: #818cf8 !important;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between max-w-md mx-auto p-4 sm:p-6 select-none">
+
+  <header class="w-full text-center my-2">
+    <div class="flex items-center justify-between bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50 mb-2">
+      <div class="flex items-center space-x-2">
+        <span id="workout-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <span id="workout-status-text" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Ready</span>
+      </div>
+      <!-- Global Workout Stopwatch -->
+      <div class="flex items-center space-x-1 text-xs font-mono font-bold text-amber-400 bg-slate-900/80 px-2.5 py-0.5 rounded-md border border-slate-700">
+        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="global-stopwatch">00:00</span>
+      </div>
+    </div>
+    <h1 class="text-2xl font-extrabold gradient-text">6-Step Morning Routine</h1>
+
+    <!-- Pyramid Progress Bar Steps -->
+    <div class="mt-4 grid grid-cols-6 gap-1.5 px-2" id="pyramid-steps-container">
+      <!-- Generated via JS -->
+    </div>
+  </header>
+
+  <main class="w-full flex-1 flex flex-col justify-center items-center my-2">
+    <!-- Rest Duration Selector Bar -->
+    <div class="w-full bg-slate-800/60 border border-slate-700/50 rounded-2xl p-2 mb-3 flex items-center justify-between text-xs">
+      <span class="text-slate-400 font-medium pl-1">Rest Interval:</span>
+      <div class="flex space-x-1.5" id="rest-options-container">
+        <button onclick="setRestDuration(10)" id="rest-btn-10" class="px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 font-semibold transition-all">10s</button>
+        <button onclick="setRestDuration(15)" id="rest-btn-15" class="px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 font-semibold transition-all">15s</button>
+        <button onclick="setRestDuration(30)" id="rest-btn-30" class="px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 font-semibold transition-all rest-pill-active">30s</button>
+        <button onclick="setRestDuration(60)" id="rest-btn-60" class="px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 font-semibold transition-all">1m</button>
+      </div>
+    </div>
+
+    <div class="w-full bg-slate-800/90 border border-slate-700/60 rounded-3xl p-5 flex flex-col items-center shadow-xl pyramid-glow relative overflow-hidden">
+      
+      <!-- Exercise Header Info -->
+      <div class="w-full flex justify-between items-start mb-2 z-10">
+        <div>
+          <span id="step-badge" class="text-xs font-bold text-indigo-400 uppercase tracking-widest bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-800/50">Step 1 of 6</span>
+          <h2 id="exercise-title" class="text-2xl font-bold text-white mt-1">Push-ups</h2>
+        </div>
+        <div class="text-right">
+          <div id="exercise-target" class="text-2xl font-black text-amber-400">20 REPS</div>
+          <span id="exercise-type" class="text-xs text-slate-400">Target Goal</span>
+        </div>
+      </div>
+
+      <!-- Animated Visual Demonstration Canvas -->
+      <div class="relative w-full h-48 bg-slate-900/80 rounded-2xl border border-slate-700/40 my-2 flex items-center justify-center overflow-hidden">
+        <canvas id="anim-canvas" width="300" height="200" class="w-full h-full"></canvas>
+        <div class="absolute bottom-2 left-3 bg-slate-950/70 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-800/80 text-[11px] text-slate-300 flex items-center gap-1.5">
+          <span id="anim-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span id="anim-label">Live Form Guide</span>
+        </div>
+      </div>
+
+      <!-- Description & Focus -->
+      <p id="exercise-desc" class="text-sm text-slate-300 text-center font-medium my-1">Upper body activation (Chest, Shoulders, Triceps)</p>
+
+      <!-- Timer / Counter Interactive Ring -->
+      <div id="timer-display-container" class="mt-2 relative w-28 h-28 flex items-center justify-center hidden">
+        <svg class="w-full h-full" viewBox="0 0 100 100">
+          <circle class="text-slate-700" stroke-width="6" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
+          <circle id="progress-ring" class="text-indigo-500 progress-ring-circle" stroke-width="6" stroke-dasharray="263.89" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
+        </svg>
+        <span id="timer-text" class="absolute text-2xl font-bold text-white tracking-tight">00:30</span>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="w-full space-y-3 mb-2">
+    <!-- Primary Action Button -->
+    <button id="btn-main" onclick="handleMainAction()" class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] transition-all font-bold text-lg text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2">
+      <span id="btn-main-text">Start Workout & Rest</span>
+      <svg id="btn-main-icon" class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+    </button>
+
+    <!-- Secondary Navigation -->
+    <div class="grid grid-cols-3 gap-2">
+      <button onclick="previousStep()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300 font-semibold text-xs flex justify-center items-center gap-1 active:scale-95 transition-all">
+        ‹ Prev Step
+      </button>
+      <button onclick="resetWorkout()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300 font-semibold text-xs flex justify-center items-center gap-1 active:scale-95 transition-all">
+        ↺ Restart
+      </button>
+      <button onclick="skipRest()" id="btn-skip" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-300 font-semibold text-xs flex justify-center items-center gap-1 opacity-50 cursor-not-allowed active:scale-95 transition-all">
+        Skip Rest ›
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    const routine = [
+      { id: 1, name: "Push-ups", reps: "20 REPS", desc: "Upper body activation (Chest, Shoulders & Core)", type: "reps" },
+      { id: 2, name: "Squats", reps: "30 REPS", desc: "Engage core, glutes, hamstrings & quads", type: "reps" },
+      { id: 3, name: "Mountain Climbers", reps: "40 REPS", desc: "High tempo cardio to drive heart rate & burn fat", type: "reps" },
+      { id: 4, name: "Jumping Jacks", reps: "50 REPS", desc: "Full body aerobic burn & coordination", type: "reps" },
+      { id: 5, name: "High Knees", reps: "60 REPS", desc: "Maximum speed cardio capacity push", type: "reps" },
+      { id: 6, name: "Plank Hold", reps: "2 MINS", desc: "Isometric core lock-in to finish strong", type: "timer", duration: 120 }
+    ];
+
+    let currentStep = 0;
+    let selectedRestDuration = 30;
+    let isResting = false;
+    let isTimerRunning = false;
+    let timerInterval = null;
+    let timeRemaining = 0;
+    let totalTime = 0;
+    let animFrameId = null;
+
+    let globalStopwatchInterval = null;
+    let elapsedSeconds = 0;
+    let isWorkoutStarted = false;
+
+    const stepBadge = document.getElementById('step-badge');
+    const exerciseTitle = document.getElementById('exercise-title');
+    const exerciseTarget = document.getElementById('exercise-target');
+    const exerciseType = document.getElementById('exercise-type');
+    const exerciseDesc = document.getElementById('exercise-desc');
+    const timerDisplayContainer = document.getElementById('timer-display-container');
+    const timerText = document.getElementById('timer-text');
+    const progressRing = document.getElementById('progress-ring');
+    const btnMain = document.getElementById('btn-main');
+    const btnMainText = document.getElementById('btn-main-text');
+    const btnSkip = document.getElementById('btn-skip');
+    const globalStopwatchEl = document.getElementById('global-stopwatch');
+    const workoutStatusDot = document.getElementById('workout-status-dot');
+    const workoutStatusText = document.getElementById('workout-status-text');
+    const animLabel = document.getElementById('anim-label');
+    const animDot = document.getElementById('anim-dot');
+    const canvas = document.getElementById('anim-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const ringRadius = 42;
+    const ringCircumference = 2 * Math.PI * ringRadius;
+
+    function setRestDuration(seconds) {
+      selectedRestDuration = seconds;
+      [10, 15, 30, 60].forEach(sec => {
+        const btn = document.getElementById(`rest-btn-${sec}`);
+        if (btn) {
+          if (sec === seconds) {
+            btn.classList.add('rest-pill-active');
+          } else {
+            btn.classList.remove('rest-pill-active');
+          }
+        }
+      });
+
+      if (isResting) {
+        timeRemaining = seconds;
+        totalTime = seconds;
+        updateTimerDisplay();
+      }
+    }
+
+    function initUI() {
+      const container = document.getElementById('pyramid-steps-container');
+      container.innerHTML = '';
+      routine.forEach((item, index) => {
+        const stepEl = document.createElement('div');
+        stepEl.id = `step-indicator-${index}`;
+        stepEl.className = `h-2.5 rounded-full transition-all duration-300 ${
+          index === 0 ? 'bg-indigo-500 ring-2 ring-indigo-400/50' : 'bg-slate-700/80'
+        }`;
+        container.appendChild(stepEl);
+      });
+      loadStep(0);
+    }
+
+    function startGlobalStopwatch() {
+      if (isWorkoutStarted) return;
+      isWorkoutStarted = true;
+      elapsedSeconds = 0;
+      updateStopwatchDisplay();
+      
+      workoutStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+      workoutStatusText.textContent = "In Progress";
+
+      globalStopwatchInterval = setInterval(() => {
+        elapsedSeconds++;
+        updateStopwatchDisplay();
+      }, 1000);
+    }
+
+    function stopGlobalStopwatch() {
+      clearInterval(globalStopwatchInterval);
+      workoutStatusDot.className = "w-2 h-2 rounded-full bg-indigo-400";
+      workoutStatusText.textContent = "Finished";
+    }
+
+    function resetGlobalStopwatch() {
+      clearInterval(globalStopwatchInterval);
+      elapsedSeconds = 0;
+      isWorkoutStarted = false;
+      updateStopwatchDisplay();
+      workoutStatusDot.className = "w-2 h-2 rounded-full bg-slate-400";
+      workoutStatusText.textContent = "Ready";
+    }
+
+    function updateStopwatchDisplay() {
+      const hrs = Math.floor(elapsedSeconds / 3600);
+      const mins = Math.floor((elapsedSeconds % 3600) / 60);
+      const secs = elapsedSeconds % 60;
+      if (hrs > 0) {
+        globalStopwatchEl.textContent = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      } else {
+        globalStopwatchEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+    }
+
+    function updateStepIndicators() {
+      routine.forEach((_, index) => {
+        const el = document.getElementById(`step-indicator-${index}`);
+        if (!el) return;
+        if (index < currentStep) {
+          el.className = 'h-2.5 rounded-full bg-emerald-500';
+        } else if (index === currentStep) {
+          el.className = 'h-2.5 rounded-full bg-indigo-500 ring-2 ring-indigo-400/50 scale-105';
+        } else {
+          el.className = 'h-2.5 rounded-full bg-slate-700/80';
+        }
+      });
+    }
+
+    function loadStep(index) {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      isResting = false;
+      currentStep = index;
+
+      const step = routine[currentStep];
+      stepBadge.textContent = `Step ${step.id} of 6`;
+      exerciseTitle.textContent = step.name;
+      exerciseTarget.textContent = step.reps;
+      exerciseType.textContent = step.type === 'timer' ? 'Countdown' : 'Target Reps';
+      exerciseDesc.textContent = step.desc;
+
+      animLabel.textContent = "Live Form Guide";
+      animDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping";
+      btnSkip.classList.add('opacity-50', 'cursor-not-allowed');
+
+      if (step.type === 'timer') {
+        timerDisplayContainer.classList.remove('hidden');
+        timeRemaining = step.duration;
+        totalTime = step.duration;
+        updateTimerDisplay();
+        btnMainText.textContent = isWorkoutStarted ? 'Start 2 Min Hold' : 'Start Workout & Hold';
+      } else {
+        timerDisplayContainer.classList.add('hidden');
+        btnMainText.textContent = isWorkoutStarted ? `Done - Rest ${selectedRestDuration}s` : 'Start Workout';
+      }
+
+      updateStepIndicators();
+      startAnimation(step.id);
+    }
+
+    function handleMainAction() {
+      if (!isWorkoutStarted) {
+        startGlobalStopwatch();
+      }
+
+      const step = routine[currentStep];
+
+      if (isResting) {
+        skipRest();
+        return;
+      }
+
+      if (step.type === 'timer') {
+        if (!isTimerRunning) {
+          isTimerRunning = true;
+          btnMainText.textContent = 'Pause Timer';
+          timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+            if (timeRemaining <= 0) {
+              clearInterval(timerInterval);
+              isTimerRunning = false;
+              playBeep();
+              finishWorkout();
+            }
+          }, 1000);
+        } else {
+          clearInterval(timerInterval);
+          isTimerRunning = false;
+          btnMainText.textContent = 'Resume Timer';
+        }
+      } else {
+        startRest(selectedRestDuration);
+      }
+    }
+
+    function startRest(duration) {
+      isResting = true;
+      timeRemaining = duration;
+      totalTime = duration;
+      timerDisplayContainer.classList.remove('hidden');
+      btnMainText.textContent = 'Resting... (Tap to Skip)';
+      btnSkip.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      if (currentStep < routine.length - 1) {
+        const nextStep = routine[currentStep + 1];
+        stepBadge.textContent = `Resting (${currentStep + 1}/6)`;
+        exerciseTitle.textContent = `Next: ${nextStep.name}`;
+        exerciseTarget.textContent = nextStep.reps;
+        exerciseType.textContent = 'Next Up';
+        exerciseDesc.textContent = `Prepare for Step ${nextStep.id}: ${nextStep.desc}`;
+        animLabel.textContent = `Preview: ${nextStep.name}`;
+        animDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping";
+        startAnimation(nextStep.id);
+      }
+
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          playBeep();
+          skipRest();
+        }
+      }, 1000);
+    }
+
+    function skipRest() {
+      clearInterval(timerInterval);
+      if (currentStep < routine.length - 1) {
+        loadStep(currentStep + 1);
+      } else {
+        finishWorkout();
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 0) {
+        loadStep(currentStep - 1);
+      }
+    }
+
+    function resetWorkout() {
+      resetGlobalStopwatch();
+      loadStep(0);
+    }
+
+    function finishWorkout() {
+      stopGlobalStopwatch();
+
+      const finalMins = Math.floor(elapsedSeconds / 60);
+      const finalSecs = elapsedSeconds % 60;
+      const formattedTotalTime = `${finalMins.toString().padStart(2, '0')}:${finalSecs.toString().padStart(2, '0')}`;
+
+      stepBadge.textContent = 'Complete';
+      exerciseTitle.textContent = 'Workout Completed!';
+      exerciseTarget.textContent = formattedTotalTime;
+      exerciseType.textContent = 'Total Time';
+      exerciseDesc.textContent = `Outstanding! You finished the entire 6-step pyramid in ${formattedTotalTime}.`;
+      timerDisplayContainer.classList.add('hidden');
+      btnMainText.textContent = 'Restart Routine';
+      btnMain.onclick = () => {
+        btnMain.onclick = handleMainAction;
+        resetWorkout();
+      };
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timeRemaining / 60);
+      const secs = timeRemaining % 60;
+      timerText.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      const progress = timeRemaining / totalTime;
+      const offset = ringCircumference - (progress * ringCircumference);
+      progressRing.style.strokeDashoffset = offset;
+    }
+
+    function playBeep() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } catch (e) {
+        // Audio fallback
+      }
+    }
+
+    function startAnimation(stepId) {
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      let t = 0;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 20) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 20) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#818cf8';
+        ctx.fillStyle = '#818cf8';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+
+        t += 0.05;
+
+        switch (stepId) {
+          case 1: drawPushups(t); break;
+          case 2: drawSquats(t); break;
+          case 3: drawMountainClimbers(t); break;
+          case 4: drawJumpingJacks(t); break;
+          case 5: drawHighKnees(t); break;
+          case 6: drawPlank(t); break;
+        }
+
+        animFrameId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function drawHead(x, y, r = 10) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fill();
+    }
+
+    function drawLine(x1, y1, x2, y2, color = '#818cf8', width = 4) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPushups(t) {
+      const cycle = (Math.sin(t) + 1) / 2;
+      const bodyY = 120 + cycle * 25;
+      drawLine(30, 160, 270, 160, '#334155', 3);
+      drawHead(210, bodyY - 10);
+      drawLine(70, 150, 195, bodyY);
+      const elbowY = bodyY + 15;
+      drawLine(180, bodyY, 175, elbowY);
+      drawLine(175, elbowY, 170, 160);
+      drawLine(60, 160, 70, 150);
+    }
+
+    function drawSquats(t) {
+      const cycle = (Math.sin(t) + 1) / 2;
+      const squatDepth = cycle * 35;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      const hipY = 110 + squatDepth;
+      const kneeY = 145 + squatDepth * 0.2;
+      const headY = 60 + squatDepth;
+      drawHead(150, headY);
+      drawLine(150, headY + 10, 150, hipY);
+      drawLine(150, hipY, 130, kneeY);
+      drawLine(130, kneeY, 135, 180);
+      drawLine(150, hipY, 170, kneeY);
+      drawLine(170, kneeY, 165, 180);
+      drawLine(150, headY + 25, 190, headY + 25);
+    }
+
+    function drawMountainClimbers(t) {
+      const legCycle = Math.sin(t * 2);
+      drawLine(30, 160, 270, 160, '#334155', 3);
+      drawHead(210, 95);
+      drawLine(200, 105, 100, 130);
+      drawLine(190, 110, 190, 160);
+      const knee1X = 130 + legCycle * 30;
+      const knee2X = 130 - legCycle * 30;
+      drawLine(100, 130, knee1X, 135);
+      drawLine(knee1X, 135, 60, 160);
+      drawLine(100, 130, knee2X, 145);
+      drawLine(knee2X, 145, 90, 160);
+    }
+
+    function drawJumpingJacks(t) {
+      const cycle = (Math.sin(t * 1.5) + 1) / 2;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      const headY = 55;
+      drawHead(150, headY);
+      drawLine(150, headY + 10, 150, 120);
+      const armAngle = cycle * Math.PI * 0.7;
+      const leftArmX = 150 - Math.cos(armAngle) * 40;
+      const leftArmY = 80 - Math.sin(armAngle) * 40;
+      const rightArmX = 150 + Math.cos(armAngle) * 40;
+      const rightArmY = 80 - Math.sin(armAngle) * 40;
+      drawLine(150, 75, leftArmX, leftArmY);
+      drawLine(150, 75, rightArmX, rightArmY);
+      const legSpread = cycle * 30;
+      drawLine(150, 120, 150 - legSpread - 10, 180);
+      drawLine(150, 120, 150 + legSpread + 10, 180);
+    }
+
+    function drawHighKnees(t) {
+      const stepCycle = Math.sin(t * 2.5);
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(150, 60);
+      drawLine(150, 70, 150, 125);
+      if (stepCycle > 0) {
+        drawLine(150, 125, 120, 125);
+        drawLine(120, 125, 120, 165);
+        drawLine(150, 125, 170, 180);
+      } else {
+        drawLine(150, 125, 180, 125);
+        drawLine(180, 125, 180, 165);
+        drawLine(150, 125, 130, 180);
+      }
+      drawLine(150, 85, 130, 105);
+      drawLine(150, 85, 170, 100);
+    }
+
+    function drawPlank(t) {
+      const microBreath = Math.sin(t * 0.8) * 2;
+      drawLine(30, 160, 270, 160, '#334155', 3);
+      drawHead(220, 125 + microBreath);
+      drawLine(210, 132 + microBreath, 80, 135 + microBreath);
+      drawLine(195, 132 + microBreath, 195, 160);
+      drawLine(195, 160, 215, 160);
+      drawLine(80, 135 + microBreath, 70, 160);
+    }
+
+    window.onload = () => {
+      initUI();
+    };
+  </script>
+</body>
+</html>
