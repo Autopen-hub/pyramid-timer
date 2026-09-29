@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>6-Step Pyramid Routine</title>
+  <title>Workout Routine App</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,10 +40,12 @@
 <body class="min-h-screen flex flex-col justify-between max-w-md mx-auto p-4 sm:p-6 select-none">
 
   <header class="w-full text-center my-2">
-    <div class="flex items-center justify-between bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50 mb-2">
+    <div class="flex items-center justify-between bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/50 mb-2">
       <div class="flex items-center space-x-2">
-        <span id="workout-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
-        <span id="workout-status-text" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Ready</span>
+        <select id="routineSelector" onchange="switchRoutine(this.value)" class="bg-slate-900 text-slate-200 text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-700 outline-none cursor-pointer hover:border-indigo-500 transition-colors">
+          <option value="pyramid">6-Step Pyramid Routine</option>
+          <option value="calisthenics">Home Calisthenics Routine</option>
+        </select>
       </div>
       <!-- Global Workout Stopwatch -->
       <div class="flex items-center space-x-1 text-xs font-mono font-bold text-amber-400 bg-slate-900/80 px-2.5 py-0.5 rounded-md border border-slate-700">
@@ -53,11 +55,16 @@
         <span id="global-stopwatch">00:00</span>
       </div>
     </div>
-    <h1 class="text-2xl font-extrabold gradient-text">6-Step Morning Routine</h1>
+    
+    <div class="flex items-center justify-center space-x-2 mt-1">
+      <span id="workout-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+      <span id="workout-status-text" class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ready</span>
+    </div>
+    <h1 id="routine-main-title" class="text-2xl font-extrabold gradient-text mt-1">6-Step Morning Routine</h1>
 
-    <!-- Pyramid Progress Bar Steps -->
-    <div class="mt-4 grid grid-cols-6 gap-1.5 px-2" id="pyramid-steps-container">
-      <!-- Generated via JS -->
+    <!-- Dynamic Steps Indicator Bar Container -->
+    <div class="mt-4 grid gap-1.5 px-2" id="pyramid-steps-container">
+      <!-- Injected via JavaScript -->
     </div>
   </header>
 
@@ -133,14 +140,45 @@
   </footer>
 
   <script>
-    const routine = [
-      { id: 1, name: "Push-ups", reps: "20 REPS", desc: "Upper body activation (Chest, Shoulders & Core)", type: "reps" },
-      { id: 2, name: "Squats", reps: "30 REPS", desc: "Engage core, glutes, hamstrings & quads", type: "reps" },
-      { id: 3, name: "Mountain Climbers", reps: "40 REPS", desc: "High tempo cardio to drive heart rate & burn fat", type: "reps" },
-      { id: 4, name: "Jumping Jacks", reps: "50 REPS", desc: "Full body aerobic burn & coordination", type: "reps" },
-      { id: 5, name: "High Knees", reps: "60 REPS", desc: "Maximum speed cardio capacity push", type: "reps" },
-      { id: 6, name: "Plank Hold", reps: "2 MINS", desc: "Isometric core lock-in to finish strong", type: "timer", duration: 120 }
-    ];
+    const routinesData = {
+      pyramid: {
+        title: "6-Step Morning Routine",
+        routine: [
+          { id: 1, name: "Push-ups", reps: "20 REPS", desc: "Upper body activation (Chest, Shoulders & Core)", type: "reps" },
+          { id: 2, name: "Squats", reps: "30 REPS", desc: "Engage core, glutes, hamstrings & quads", type: "reps" },
+          { id: 3, name: "Mountain Climbers", reps: "40 REPS", desc: "High tempo cardio to drive heart rate & burn fat", type: "reps" },
+          { id: 4, name: "Jumping Jacks", reps: "50 REPS", desc: "Full body aerobic burn & coordination", type: "reps" },
+          { id: 5, name: "High Knees", reps: "60 REPS", desc: "Maximum speed cardio capacity push", type: "reps" },
+          { id: 6, name: "Plank Hold", reps: "2 MINS", desc: "Isometric core lock-in to finish strong", type: "timer", duration: 120 }
+        ]
+      },
+      calisthenics: {
+        title: "Home Calisthenics Routine",
+        routine: [
+          // Round 1
+          { id: 1, name: "Push-ups", reps: "10 REPS", desc: "Round 1: Upper body activation", type: "reps" },
+          { id: 2, name: "Squats", reps: "15 REPS", desc: "Round 1: Lower body power", type: "reps" },
+          { id: 3, name: "Leg Raises", reps: "10 REPS", desc: "Round 1: Lower core focus", type: "reps" },
+          { id: 4, name: "Shoulder Reaches", reps: "30 REPS", desc: "Round 1: Upper back & mobility", type: "reps" },
+          { id: 5, name: "Plank Hold", reps: "30 SECS", desc: "Round 1: Core endurance hold", type: "timer", duration: 30 },
+          // Round 2
+          { id: 6, name: "Push-ups", reps: "10 REPS", desc: "Round 2: Upper body activation", type: "reps" },
+          { id: 7, name: "Squats", reps: "15 REPS", desc: "Round 2: Lower body power", type: "reps" },
+          { id: 8, name: "Leg Raises", reps: "10 REPS", desc: "Round 2: Lower core focus", type: "reps" },
+          { id: 9, name: "Shoulder Reaches", reps: "30 REPS", desc: "Round 2: Upper back & mobility", type: "reps" },
+          { id: 10, name: "Plank Hold", reps: "30 SECS", desc: "Round 2: Core endurance hold", type: "timer", duration: 30 },
+          // Round 3
+          { id: 11, name: "Push-ups", reps: "10 REPS", desc: "Round 3: Final upper body push", type: "reps" },
+          { id: 12, name: "Squats", reps: "15 REPS", desc: "Round 3: Final leg power", type: "reps" },
+          { id: 13, name: "Leg Raises", reps: "10 REPS", desc: "Round 3: Final core burn", type: "reps" },
+          { id: 14, name: "Shoulder Reaches", reps: "30 REPS", desc: "Round 3: Final mobility push", type: "reps" },
+          { id: 15, name: "Plank Hold", reps: "30 SECS", desc: "Round 3: Final isometric lock-in", type: "timer", duration: 30 }
+        ]
+      }
+    };
+
+    let activeKey = 'pyramid';
+    let routine = routinesData[activeKey].routine;
 
     let currentStep = 0;
     let selectedRestDuration = 30;
@@ -173,9 +211,18 @@
     const animDot = document.getElementById('anim-dot');
     const canvas = document.getElementById('anim-canvas');
     const ctx = canvas.getContext('2d');
+    const routineMainTitle = document.getElementById('routine-main-title');
 
     const ringRadius = 42;
     const ringCircumference = 2 * Math.PI * ringRadius;
+
+    function switchRoutine(key) {
+      activeKey = key;
+      routine = routinesData[activeKey].routine;
+      routineMainTitle.textContent = routinesData[activeKey].title;
+      resetGlobalStopwatch();
+      initUI();
+    }
 
     function setRestDuration(seconds) {
       selectedRestDuration = seconds;
@@ -200,6 +247,10 @@
     function initUI() {
       const container = document.getElementById('pyramid-steps-container');
       container.innerHTML = '';
+      
+      const colCount = Math.min(routine.length, 6);
+      container.className = `mt-4 grid gap-1.5 px-2 grid-cols-${colCount}`;
+      
       routine.forEach((item, index) => {
         const stepEl = document.createElement('div');
         stepEl.id = `step-indicator-${index}`;
@@ -273,7 +324,7 @@
       currentStep = index;
 
       const step = routine[currentStep];
-      stepBadge.textContent = `Step ${step.id} of 6`;
+      stepBadge.textContent = `Step ${currentStep + 1} of ${routine.length}`;
       exerciseTitle.textContent = step.name;
       exerciseTarget.textContent = step.reps;
       exerciseType.textContent = step.type === 'timer' ? 'Countdown' : 'Target Reps';
@@ -288,14 +339,14 @@
         timeRemaining = step.duration;
         totalTime = step.duration;
         updateTimerDisplay();
-        btnMainText.textContent = isWorkoutStarted ? 'Start 2 Min Hold' : 'Start Workout & Hold';
+        btnMainText.textContent = isWorkoutStarted ? 'Start Timer Hold' : 'Start Workout & Hold';
       } else {
         timerDisplayContainer.classList.add('hidden');
         btnMainText.textContent = isWorkoutStarted ? `Done - Rest ${selectedRestDuration}s` : 'Start Workout';
       }
 
       updateStepIndicators();
-      startAnimation(step.id);
+      startAnimation(step.name);
     }
 
     function handleMainAction() {
@@ -344,14 +395,14 @@
 
       if (currentStep < routine.length - 1) {
         const nextStep = routine[currentStep + 1];
-        stepBadge.textContent = `Resting (${currentStep + 1}/6)`;
+        stepBadge.textContent = `Resting (${currentStep + 1}/${routine.length})`;
         exerciseTitle.textContent = `Next: ${nextStep.name}`;
         exerciseTarget.textContent = nextStep.reps;
         exerciseType.textContent = 'Next Up';
-        exerciseDesc.textContent = `Prepare for Step ${nextStep.id}: ${nextStep.desc}`;
+        exerciseDesc.textContent = nextStep.desc;
         animLabel.textContent = `Preview: ${nextStep.name}`;
         animDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping";
-        startAnimation(nextStep.id);
+        startAnimation(nextStep.name);
       }
 
       updateTimerDisplay();
@@ -384,6 +435,8 @@
     function resetWorkout() {
       resetGlobalStopwatch();
       loadStep(0);
+      btnMainText.textContent = 'Start Workout & Rest';
+      btnMain.onclick = handleMainAction;
     }
 
     function finishWorkout() {
@@ -397,7 +450,7 @@
       exerciseTitle.textContent = 'Workout Completed!';
       exerciseTarget.textContent = formattedTotalTime;
       exerciseType.textContent = 'Total Time';
-      exerciseDesc.textContent = `Outstanding! You finished the entire 6-step pyramid in ${formattedTotalTime}.`;
+      exerciseDesc.textContent = `Outstanding! You finished the entire routine in ${formattedTotalTime}.`;
       timerDisplayContainer.classList.add('hidden');
       btnMainText.textContent = 'Restart Routine';
       btnMain.onclick = () => {
@@ -428,13 +481,14 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.3);
       } catch (e) {
-        // Audio fallback
+        // Audio context gracefully handled if blocked
       }
     }
 
-    function startAnimation(stepId) {
+    function startAnimation(exerciseName) {
       if (animFrameId) cancelAnimationFrame(animFrameId);
       let t = 0;
+      const name = exerciseName.toLowerCase();
 
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -455,14 +509,15 @@
 
         t += 0.05;
 
-        switch (stepId) {
-          case 1: drawPushups(t); break;
-          case 2: drawSquats(t); break;
-          case 3: drawMountainClimbers(t); break;
-          case 4: drawJumpingJacks(t); break;
-          case 5: drawHighKnees(t); break;
-          case 6: drawPlank(t); break;
-        }
+        if (name.includes('push')) drawPushups(t);
+        else if (name.includes('squat')) drawSquats(t);
+        else if (name.includes('mountain')) drawMountainClimbers(t);
+        else if (name.includes('jump')) drawJumpingJacks(t);
+        else if (name.includes('high')) drawHighKnees(t);
+        else if (name.includes('plank')) drawPlank(t);
+        else if (name.includes('leg')) drawLegRaises(t);
+        else if (name.includes('shoulder')) drawShoulderReaches(t);
+        else drawPlank(t);
 
         animFrameId = requestAnimationFrame(draw);
       }
@@ -571,6 +626,28 @@
       drawLine(195, 132 + microBreath, 195, 160);
       drawLine(195, 160, 215, 160);
       drawLine(80, 135 + microBreath, 70, 160);
+    }
+
+    function drawLegRaises(t) {
+      const cycle = (Math.sin(t * 1.5) + 1) / 2;
+      const legAngle = cycle * 0.6;
+      drawLine(40, 150, 260, 150, '#334155', 3);
+      drawHead(70, 135);
+      drawLine(80, 140, 140, 140);
+      const footX = 140 + Math.cos(legAngle) * 50;
+      const footY = 140 - Math.sin(legAngle) * 50;
+      drawLine(140, 140, footX, footY);
+    }
+
+    function drawShoulderReaches(t) {
+      const cycle = Math.sin(t * 2) * 25;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(150, 70);
+      drawLine(150, 80, 150, 140);
+      drawLine(150, 140, 130, 180);
+      drawLine(150, 140, 170, 180);
+      drawLine(150, 95, 120 + cycle, 75);
+      drawLine(150, 95, 180 - cycle, 75);
     }
 
     window.onload = () => {
