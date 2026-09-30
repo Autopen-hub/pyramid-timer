@@ -1,2 +1,2 @@
-# pyramid-timer
-6-steps pryramid exercise in the morning
+# exercise-rountine
+Exercise in the morning
