@@ -45,6 +45,7 @@
         <select id="routineSelector" onchange="switchRoutine(this.value)" class="bg-slate-900 text-slate-200 text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-700 outline-none cursor-pointer hover:border-indigo-500 transition-colors">
           <option value="pyramid">6-Step Pyramid Routine</option>
           <option value="calisthenics">Home Calisthenics Routine</option>
+          <option value="matrix">Matrix 1-Hour Cable Routine</option>
         </select>
       </div>
       <!-- Global Workout Stopwatch -->
@@ -173,6 +174,53 @@
           { id: 13, name: "Leg Raises", reps: "10 REPS", desc: "Round 3: Final core burn", type: "reps" },
           { id: 14, name: "Shoulder Reaches", reps: "30 REPS", desc: "Round 3: Final mobility push", type: "reps" },
           { id: 15, name: "Plank Hold", reps: "30 SECS", desc: "Round 3: Final isometric lock-in", type: "timer", duration: 30 }
+        ]
+      },
+      matrix: {
+        title: "Matrix 1-Hour Cable Routine",
+        routine: [
+          { 
+            id: 1, 
+            name: "Low-to-High Cable Flyes", 
+            reps: "4 SETS x 10-12", 
+            desc: "Setup: Pulley lowest + D-Handles | Stand in middle, scoop upwards in front of upper chest.", 
+            type: "reps" 
+          },
+          { 
+            id: 2, 
+            name: "Cable Face Pulls", 
+            reps: "4 SETS x 12-15", 
+            desc: "Setup: Pulley chest-height + Rope | Pull to forehead, flare elbows, squeeze rear delts.", 
+            type: "reps" 
+          },
+          { 
+            id: 3, 
+            name: "Standing High-Cable Row", 
+            reps: "3 SETS x 10-12", 
+            desc: "Setup: Pulley high + D-Handles/EZ-Bar | Pull down/back to chest, drive elbows down.", 
+            type: "reps" 
+          },
+          { 
+            id: 4, 
+            name: "Triceps Rope Pushdowns", 
+            reps: "3 SETS x 12-15", 
+            desc: "Setup: Pulley high + Rope | Extend downwards, spread rope ends apart at bottom.", 
+            type: "reps" 
+          },
+          { 
+            id: 5, 
+            name: "Cable Biceps Curls", 
+            reps: "3 SETS x 12-15", 
+            desc: "Setup: Pulley low + EZ-Bar/D-Handles | Curl upwards with elbows locked at sides.", 
+            type: "reps" 
+          },
+          { 
+            id: 6, 
+            name: "Pull-ups / V-Taper Hold", 
+            reps: "3 SETS to Near Failure", 
+            desc: "Setup: Top handles with blue grips | Pull chest to handles to widen back & V-taper.", 
+            type: "reps" 
+          }
         ]
       }
     };
@@ -327,7 +375,7 @@
       stepBadge.textContent = `Step ${currentStep + 1} of ${routine.length}`;
       exerciseTitle.textContent = step.name;
       exerciseTarget.textContent = step.reps;
-      exerciseType.textContent = step.type === 'timer' ? 'Countdown' : 'Target Reps';
+      exerciseType.textContent = step.type === 'timer' ? 'Countdown' : 'Target Goal';
       exerciseDesc.textContent = step.desc;
 
       animLabel.textContent = "Live Form Guide";
@@ -509,15 +557,21 @@
 
         t += 0.05;
 
-        if (name.includes('push')) drawPushups(t);
+        if (name.includes('push-ups')) drawPushups(t);
         else if (name.includes('squat')) drawSquats(t);
         else if (name.includes('mountain')) drawMountainClimbers(t);
         else if (name.includes('jump')) drawJumpingJacks(t);
-        else if (name.includes('high')) drawHighKnees(t);
+        else if (name.includes('high knees')) drawHighKnees(t);
         else if (name.includes('plank')) drawPlank(t);
-        else if (name.includes('leg')) drawLegRaises(t);
-        else if (name.includes('shoulder')) drawShoulderReaches(t);
-        else drawPlank(t);
+        else if (name.includes('leg raises')) drawLegRaises(t);
+        else if (name.includes('shoulder reaches')) drawShoulderReaches(t);
+        else if (name.includes('flyes')) drawCableFlyes(t);
+        else if (name.includes('face pulls')) drawFacePulls(t);
+        else if (name.includes('cable row')) drawCableRow(t);
+        else if (name.includes('pushdowns')) drawTricepPushdown(t);
+        else if (name.includes('curls')) drawBicepCurl(t);
+        else if (name.includes('pull-ups')) drawPullUps(t);
+        else drawCableMotion(t);
 
         animFrameId = requestAnimationFrame(draw);
       }
@@ -648,6 +702,101 @@
       drawLine(150, 140, 170, 180);
       drawLine(150, 95, 120 + cycle, 75);
       drawLine(150, 95, 180 - cycle, 75);
+    }
+
+    // --- Custom Canvas Animations for Matrix Routine ---
+    function drawCableFlyes(t) {
+      const cycle = (Math.sin(t * 2) + 1) / 2;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(150, 55);
+      drawLine(150, 65, 150, 125);
+      drawLine(150, 125, 135, 180);
+      drawLine(150, 125, 165, 180);
+      const handX = 150;
+      const handY = 80 - cycle * 30;
+      drawLine(150, 80, 100 + (1 - cycle) * 30, 110);
+      drawLine(100 + (1 - cycle) * 30, 110, handX, handY);
+      drawLine(150, 80, 200 - (1 - cycle) * 30, 110);
+      drawLine(200 - (1 - cycle) * 30, 110, handX, handY);
+      drawLine(50, 170, handX, handY, '#f59e0b', 1.5);
+      drawLine(250, 170, handX, handY, '#f59e0b', 1.5);
+    }
+
+    function drawFacePulls(t) {
+      const cycle = (Math.sin(t * 2) + 1) / 2;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(120, 60);
+      drawLine(120, 70, 120, 130);
+      drawLine(120, 130, 105, 180);
+      drawLine(120, 130, 135, 180);
+      const handX = 130 - cycle * 20;
+      const handY = 60;
+      drawLine(120, 80, 150, 65);
+      drawLine(150, 65, handX, handY);
+      drawLine(250, 60, handX, handY, '#f59e0b', 1.5);
+    }
+
+    function drawCableRow(t) {
+      const cycle = (Math.sin(t * 2) + 1) / 2;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(120, 65);
+      drawLine(120, 75, 120, 135);
+      drawLine(120, 135, 105, 180);
+      drawLine(120, 135, 135, 180);
+      const handX = 180 - cycle * 45;
+      const handY = 95 + cycle * 10;
+      drawLine(120, 85, handX, handY);
+      drawLine(250, 30, handX, handY, '#f59e0b', 1.5);
+    }
+
+    function drawTricepPushdown(t) {
+      const cycle = (Math.sin(t * 2) + 1) / 2;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(120, 60);
+      drawLine(120, 70, 120, 130);
+      drawLine(120, 130, 105, 180);
+      drawLine(120, 130, 135, 180);
+      const handY = 90 + cycle * 35;
+      drawLine(120, 80, 135, 90);
+      drawLine(135, 90, 135, handY);
+      drawLine(220, 20, 135, handY, '#f59e0b', 1.5);
+    }
+
+    function drawBicepCurl(t) {
+      const cycle = (Math.sin(t * 2) + 1) / 2;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(120, 60);
+      drawLine(120, 70, 120, 130);
+      drawLine(120, 130, 105, 180);
+      drawLine(120, 130, 135, 180);
+      const handY = 120 - cycle * 35;
+      const handX = 135 - cycle * 10;
+      drawLine(120, 80, 130, 115);
+      drawLine(130, 115, handX, handY);
+      drawLine(220, 170, handX, handY, '#f59e0b', 1.5);
+    }
+
+    function drawPullUps(t) {
+      const cycle = (Math.sin(t * 2) + 1) / 2;
+      drawLine(100, 30, 200, 30, '#38bdf8', 6);
+      const headY = 85 - cycle * 35;
+      drawHead(150, headY);
+      drawLine(150, headY + 10, 150, headY + 60);
+      drawLine(150, headY + 60, 140, headY + 100);
+      drawLine(150, headY + 60, 160, headY + 100);
+      drawLine(150, headY + 20, 120, 30);
+      drawLine(150, headY + 20, 180, 30);
+    }
+
+    function drawCableMotion(t) {
+      const cycle = Math.sin(t * 1.8) * 15;
+      drawLine(80, 180, 220, 180, '#334155', 3);
+      drawHead(150, 65);
+      drawLine(150, 75, 150, 135);
+      drawLine(150, 135, 135, 180);
+      drawLine(150, 135, 165, 180);
+      drawLine(150, 90, 120 + cycle, 110 + cycle * 0.5);
+      drawLine(150, 90, 180 - cycle, 110 + cycle * 0.5);
     }
 
     window.onload = () => {
