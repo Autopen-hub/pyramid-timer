@@ -1,2 +1,2 @@
-# exercise-rountine
-Exercise in the morning
+# gym-rountine
+gym routine options
